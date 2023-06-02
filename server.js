@@ -1,17 +1,8 @@
+require('dotenv').config({path: __dirname + '/.env'})
+
 const axios = require('axios');
 
-// const db = require('./db_conn.js')
-
-const { Pool } = require('pg')
-
-const pool = new Pool({
-    user: 'postgres',
-    //host: '172.17.0.2',
-    host: 'localhost',
-    database: 'bexup',
-    password: 'start',
-    port: 51244
-})
+const createTask = require('./cloud-tasks.js');
 
 const queue = []
 
@@ -22,7 +13,7 @@ const queue = []
 
 async function getToken() {
   try {
-    const response = await axios.get('http://localhost:8080/getToken');
+    const response = await axios.get(process.env.API2_URL+'/getToken');
     // console.log('Response:', response.data.token);
     return response.data.token;
 
@@ -41,7 +32,7 @@ async function sendItem(item) {
       'Content-Type': 'application/json'
     }
 
-    const response = await axios.post('http://localhost:8080/s', item, { headers })
+    const response = await axios.post(process.env.API2_URL + '/s', item, { headers })
       .then(response => {        
         console.log('Response:', response.data);
       })
@@ -90,16 +81,20 @@ async function processQueue() {
 async function fetchDataAndEnqueue() {
   console.log('Retrieving marcas from FIPE...')
   try {
-    const response = await axios.get('https://parallelum.com.br/fipe/api/v1/carros/marcas');
-    // console.log(response.data); // Display the retrieved data in the console
+    // console.log(process.env.API_FIPE_URL);
+    const response = await axios.get(process.env.API_FIPE_URL+'carros/marcas');
+    // console.log('RESP',response.data); // Display the retrieved data in the console
     response.data.forEach(item => {
         enqueue(item)
         // console.log('Item enqueued:', item);
+
+        createTask(item)
     });
 
     processQueue();
+
   } catch (error) {
-    // console.error(error);
+    console.error(error);
   }
 }
 
@@ -156,7 +151,7 @@ function search(keyword) {
 
 // Example usage:
 fetchDataAndEnqueue();
-search('marcas');
-search('codigos');
+// search('marcas');
+// search('codigos');
 // console.log(queue)
 

@@ -1,24 +1,29 @@
+require('dotenv').config({path: __dirname + '/.env'})
+
 const { CloudTasksClient } = require('@google-cloud/tasks');
 
 // const client = new CloudTasksClient();
-const client = new CloudTasksClient({ keyFilename: './bexup-388513-d71b18d75c01.json' });
+const client = new CloudTasksClient({ keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS });
 
 
 // Cloud Run URL https://bexup-pepakk62hq-uc.a.run.app
-async function createTask() {
-    const project = 'bexup-388513';
-    const location = 'us-central1';
-    const queue = 'bexup-marcas';
+async function createTask(item=null) {
+    const project = String(process.env.GOOGLE_PROJECT_ID);
+    const location = String(process.env.LOCATION_ID);
+    const queue = String(process.env.GCP_QUEUE);
   
     const parent = client.queuePath(project, location, queue);
+
+    // console.log('item:', item.nome);
+
     const task = {
       appEngineHttpRequest: {
         httpMethod: 'POST',
-        relativeUri: '/process_brand',
+        relativeUri: '//bexup-api2-pepakk62hq-uc.a.run.app/s',
         body: Buffer.from(JSON.stringify({
-          order_id: 123456789,
-          customer_name: 'bexup',
-          order_details: []
+          code: item.codigo,
+          name: item.nome,
+          details: []
         })),
         headers: {
           'Content-Type': 'application/json'
@@ -30,5 +35,5 @@ async function createTask() {
     console.log(`Task created: ${response.name}`);
   }
   
-  createTask().catch(console.error);
-  
+  //createTask().catch(console.error);
+  module.exports = createTask;
