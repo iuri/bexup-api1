@@ -32,7 +32,7 @@ async function sendItem(item) {
       'Content-Type': 'application/json'
     }
 
-    const response = await axios.post(process.env.API2_URL + '/s', item, { headers })
+    const response = await axios.post(process.env.API2_URL + '/add', item, { headers })
       .then(response => {        
         console.log('Response:', response.data);
       })
@@ -87,7 +87,7 @@ async function fetchDataAndEnqueue() {
     response.data.forEach(item => {
         enqueue(item)
         // console.log('Item enqueued:', item);
-        // createTask(item)
+        createTask(item)
     });
 
     processQueue();
