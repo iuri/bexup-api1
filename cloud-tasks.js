@@ -16,17 +16,18 @@ async function createTask(item=null) {
 
     // console.log('item:', item.nome);
 
+
     const task = {
       appEngineHttpRequest: {
         httpMethod: 'POST',
-        relativeUri: '//bexup-api2-pepakk62hq-uc.a.run.app/s',
+        relativeUri: '//bexup-api2-pepakk62hq-uc.a.run.app/add',
         body: Buffer.from(JSON.stringify({
           code: item.codigo,
           name: item.nome,
           details: []
         })),
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         }
       }
     };
